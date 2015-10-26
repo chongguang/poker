@@ -1,39 +1,18 @@
 
 var royalFlushRule = function(req, res, next){
 	console.log("I'm the StraightFlushRules middleWare");	
-	console.log(royalFlushFunction());
-	next();
+	
+	var cards = req.body;
+	
+	if(royalFlushFunction(cards)){
+		res.json({result: 'You have a royal pair'});
+	}else{
+		next();
+	}
+	
 };
 
-var royalFlushFunction = function(cardsss){
-/*
-var cards = [];
-
-var c1 = {};
-c1.number = 1;
-c1.type = 0;
-
-var c2 = {};
-c2.number = 1;
-c2.type = 0;
-
-var c3 = {};
-c3.number = 1;
-c3.type = 0;
-
-var c4 = {};
-c4.number = 1;
-c4.type = 0;
-
-var c5 = {};
-c5.number = 1;
-c5.type = 0;
-
-cards.push(c1);
-cards.push(c2);
-cards.push(c3);
-cards.push(c4);
-cards.push(c5);
+var royalFlushFunction = function(cards){
 
 console.log(cards);
  	//var copy = cards;
@@ -57,9 +36,7 @@ console.log(cards);
 		return false;
 	}
 
-*/
+
 }
 
 exports.RoyalFlushRule = royalFlushRule;
-
-console.log(royalFlushFunction());
