@@ -5,7 +5,7 @@ var royalFlushRule = function(req, res, next){
 	var cards = req.body;
 	
 	if(royalFlushFunction(cards)){
-		res.json({result: 'You have a royal pair'});
+		res.json({result: 'You have a royal flush'});
 	}else{
 		next();
 	}
@@ -17,17 +17,21 @@ var royalFlushRule = function(req, res, next){
 //I will inspire myself with this one to create the 3 other rules.
 var royalFlushFunction = function(cards){
 
-console.log(cards);
+//console.log(cards);
  	//var copy = cards;
 	cards.sort(function(a, b) {
-	    return Number(a.number) - Number(b.number);
+	    return Number(b.number) - Number(a.number);
 	});
 
-	if(cards[0].number == 13 && cards[1].number == 12 && cards[2].number == 11 && cards[3].number == 10 && cards[4].number == 1){
-		if( cards[0].type == cards[1].type &&
-			cards[1].type == cards[2].type &&
-			cards[2].type == cards[3].type &&
-			cards[3].type == cards[4].type){
+	if( Number(cards[0].number) === 13 && 
+		Number(cards[1].number) === 12 && 
+		Number(cards[2].number) === 11 && 
+		Number(cards[3].number) === 10 && 
+		Number(cards[4].number) === 1){
+		if( Number(cards[0].type) === Number(cards[1].type) &&
+			Number(cards[1].type) === Number(cards[2].type) &&
+			Number(cards[2].type) === Number(cards[3].type) &&
+			Number(cards[3].type) === Number(cards[4].type) ){
 			//console.log(true);
 			return true;
 		} else {
