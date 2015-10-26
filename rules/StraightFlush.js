@@ -1,7 +1,6 @@
 
 var straightFlushRule = function(req, res, next){
 	console.log("I'm the StraightFlushRules middleWare");	
-	console.log(req.body.hands);
 	next();
 };
 

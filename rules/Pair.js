@@ -1,24 +1,25 @@
 
-var straightFlushRule = function(req, res, next){
-	console.log("I'm the StraightFlushRules middleWare");	
+var pairRule = function(req, res, next){
+	console.log("I'm the PairRule middleWare");	
+	
+	var hands = JSON.parse = req.body.hands;
+	
 	next();
 };
 
-var orderCards = function(cards){
-	for(var i = 0; i < cards.length; i++){
-		var cardWhichWillSwitchPosition = cards[i];
-		for(var j = i ; j < cards.length; j++){
-			var cardWhichWillBeCompared = cards[j];
-			if(cardWhichWillSwitchPosition.number > cardWhichWillBeCompared.number){
-				var temp = cardWhichWillSwitchPosition ;
-				cardWhichWillSwitchPosition = cardWhichWillBeCompared;
-				cardWhichWillBeCompared = temp;
+var doIHaveAPair = function(hands){
+	for(var i = 0; i < hands.length ; i++){
+		for(var j = i+1; j < hands.length; j++){
+			var firstCard = hands[i];
+			var secondCard = hands[j];
+			if(firstCard.number == secondCard.number){
+				return true;
 			}
 		}
 	}
-	return cards;
+	return false;
 }
 
-exports.StraightFlushRule = straightFlushRule;
+exports.pairRule = pairRule;
 
-//console.log(orderCards([{number:1, color:"heart"},{number:3, color:"heart"},{number:2, color:"heart"}]));
+console.log(doIHaveAPair([{number:3, color:"heart"},{number:3, color:"heart"},{number:2, color:"heart"}]));

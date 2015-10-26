@@ -8,6 +8,7 @@ var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var straightFlush = require("./rules/StraightFlush.js");
+var pair = require("./rules/Pair.js");
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -28,19 +29,9 @@ router.get('/', function(req, res) {
 // more routes for our API will happen here
 
 
-router.use(function(req, res, next){
-	console.log("I'm a middleWare");
-	next();
-});
-
-router.use(function(req, res, next){
-	console.log("I'm a middleWare");
-	next();
-});
-
+//Here you put all your rules
 router.use(straightFlush.StraightFlushRule);
-
-
+router.use(pair.pairRule);
 // ----------------------------------------------------
 router.route('/hands')
 
