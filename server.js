@@ -8,7 +8,11 @@ var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var straightFlush = require("./rules/StraightFlush.js");
+<<<<<<< HEAD
 var pair = require("./rules/Pair.js");
+=======
+var royalFlush = require("./rules/RoyalFlush.js");
+>>>>>>> 470bb12592882ced6f3a2eb6817f468fff276a7d
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -31,13 +35,18 @@ router.get('/', function(req, res) {
 
 //Here you put all your rules
 router.use(straightFlush.StraightFlushRule);
+<<<<<<< HEAD
 router.use(pair.pairRule);
+=======
+router.use(royalFlush.RoyalFlushRule);
+
+>>>>>>> 470bb12592882ced6f3a2eb6817f468fff276a7d
 // ----------------------------------------------------
 router.route('/hands')
 
     // create a bear (accessed at POST http://localhost:8080/api/bears)
     .post(function(req, res) {
-    	console.log('You have nothing');
+
     	res.json({result: 'You have nothing'});
     });
 
