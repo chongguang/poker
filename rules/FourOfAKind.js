@@ -22,10 +22,6 @@ var fourOfAKindFunction = function(cards){
 		array[Number(hand.type)] ++;
 	});
 
-	cards.sort(function(a, b) {
-	    return Number(b.number) - Number(a.number);
-	});
-
 	if(array.indexOf(4)>=0){
 		return true;
 	} else {

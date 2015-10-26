@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var royalFlush = require("./rules/RoyalFlush.js");
 var straightFlush = require("./rules/StraightFlush.js");
 var fourOfAKind = require("./rules/FourOfAKind.js");
+var fullHouse = require("./rules/FullHouse.js");
 var pair = require("./rules/Pair.js");
 var twoPair = require("./rules/twoPair.js");
 var threeOfAKind = require("./rules/threeOfAKind.js");
@@ -40,6 +41,7 @@ router.get('/', function(req, res) {
 router.use(royalFlush.RoyalFlushRule);
 router.use(straightFlush.StraightFlushRule);
 router.use(fourOfAKind.FourOfAKindRule);
+router.use(fullHouse.FullHouseRule);
 router.use(straight.straightRule);
 router.use(threeOfAKind.threeOfAKindRule);
 router.use(twoPair.twoPairRule);
