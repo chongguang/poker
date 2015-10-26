@@ -1,12 +1,12 @@
 
 var royalFlushRule = function(req, res, next){
 	console.log("I'm the StraightFlushRules middleWare");	
-	consol.log(royalFlushFunction());
+	console.log(royalFlushFunction());
 	next();
 };
 
 var royalFlushFunction = function(cardsss){
-
+/*
 var cards = [];
 
 var c1 = {};
@@ -57,7 +57,7 @@ console.log(cards);
 		return false;
 	}
 
-
+*/
 }
 
 exports.RoyalFlushRule = royalFlushRule;
