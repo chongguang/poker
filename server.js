@@ -9,6 +9,7 @@ var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var royalFlush = require("./rules/RoyalFlush.js");
 var straightFlush = require("./rules/StraightFlush.js");
+var flush = require("./rules/Flush.js");
 var fourOfAKind = require("./rules/FourOfAKind.js");
 var fullHouse = require("./rules/FullHouse.js");
 var pair = require("./rules/Pair.js");
@@ -42,6 +43,7 @@ router.use(royalFlush.RoyalFlushRule);
 router.use(straightFlush.StraightFlushRule);
 router.use(fourOfAKind.FourOfAKindRule);
 router.use(fullHouse.FullHouseRule);
+router.use(flush.FlushRule);
 router.use(straight.straightRule);
 router.use(threeOfAKind.threeOfAKindRule);
 router.use(twoPair.twoPairRule);
