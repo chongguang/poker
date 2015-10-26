@@ -1,19 +1,18 @@
 
-var twoPairRule = function(req, res, next){
-	console.log("I'm the TwoPairRule middleWare");	
+var threeOfAKindRule = function(req, res, next){
+	console.log("I'm the threeOfAKindRule middleWare");	
 	
 	var hands = req.body
 	
-	if(doIHaveATwoPair(hands)){
-		res.json({result: 'You have a two pair'});
+	if(doIHaveAThreeOfAKind(hands)){
+		res.json({result: 'You have a three of a kind'});
 	}else{
 		next();
 	}
 	
 };
 
-//This algorithm is not perfect and has to be modified
-var doIHaveATwoPair = function(hands){
+var doIHaveAThreeOfAKind = function(hands){
 	
 	var pairCount = 0;
 
@@ -23,7 +22,7 @@ var doIHaveATwoPair = function(hands){
 			var secondCard = hands[j];
 			if(firstCard.number == secondCard.number){
 				pairCount++;
-				if (pairCount >= 2){
+				if (pairCount >= 3){
 					return true;
 				}
 			}
@@ -32,4 +31,4 @@ var doIHaveATwoPair = function(hands){
 	return false;
 }
 
-exports.twoPairRule = twoPairRule;
+exports.threeOfAKindRule = threeOfAKindRule;
