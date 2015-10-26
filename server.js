@@ -7,6 +7,7 @@
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
+var straightFlush = require("./rules/StraightFlush.js");
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -27,21 +28,34 @@ router.get('/', function(req, res) {
 // more routes for our API will happen here
 
 
+router.use(function(req, res, next){
+	console.log("I'm a middleWare");
+	next();
+});
+
+router.use(function(req, res, next){
+	console.log("I'm a middleWare");
+	next();
+});
+
+router.use(straightFlush.StraightFlushRule);
+
 
 // ----------------------------------------------------
 router.route('/hands')
 
     // create a bear (accessed at POST http://localhost:8080/api/bears)
     .post(function(req, res) {
-    	console.log('It\'s a pair');
-    	res.json({result: 'It\'s a pair'});
-        
+    	console.log('You have nothing');
+    	res.json({result: 'You have nothing'});
     });
 
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
 app.use('/api', router);
+
+
 
 // START THE SERVER
 // =============================================================================
