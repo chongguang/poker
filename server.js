@@ -7,9 +7,10 @@
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
-var straightFlush = require("./rules/StraightFlush.js");
-var pair = require("./rules/Pair.js");
 var royalFlush = require("./rules/RoyalFlush.js");
+var straightFlush = require("./rules/StraightFlush.js");
+var fourOfAKind = require("./rules/FourOfAKind.js");
+var pair = require("./rules/Pair.js");
 var twoPair = require("./rules/twoPair.js");
 var threeOfAKind = require("./rules/threeOfAKind.js");
 var straight = require("./rules/straight.js");
@@ -38,6 +39,7 @@ router.get('/', function(req, res) {
 
 router.use(royalFlush.RoyalFlushRule);
 router.use(straightFlush.StraightFlushRule);
+router.use(fourOfAKind.FourOfAKindRule);
 router.use(straight.straightRule);
 router.use(threeOfAKind.threeOfAKindRule);
 router.use(twoPair.twoPairRule);
