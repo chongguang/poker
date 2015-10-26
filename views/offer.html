@@ -1,0 +1,322 @@
+<!-- public/index.html -->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <base href="/">
+
+        <title>Sqeedtime offer administration</title>
+
+        <!-- LOAD BOOTSTRAP CSS -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+        <!-- LOAD JQUERY -->
+        <!-- when building an angular app, you generally DO NOT want to use jquery -->
+        <!-- we are breaking this rule here because jQuery's $.param will help us send data to our PHP script so that PHP can recognize it -->
+        <!-- this is jQuery's only use. avoid it in Angular apps and if anyone has tips on how to send data to a PHP script w/o jQuery, please state it in the comments -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+        <!-- LOAD ANGULAR -->
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+
+        <!-- PROCESS FORM WITH AJAX (NEW) -->
+        <script>
+
+            // define angular module/app
+            var formApp = angular.module('formApp', []);
+
+
+
+            // create angular controller and pass in $scope and $http
+            function formController($scope, $http) {
+
+                //var ip = 'http://localhost:8080';
+                var ip = 'http://52.28.12.201:8080';
+
+                // token on localhost
+                //var token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwYXNzd29yZCI6IiQyYSQwOCRCc3RnV3FJQVcyOFpRWTlaSVdNblB1bUdIS242SlZWQUo0dWU0bTRPM3U3cUFJY1V1MjBDSyIsImVtYWlsIjoicHBAZ21haWwuY29tIiwiX2lkIjoiNTYwODU2ZWQyNWQ5MDJkYjU1NzExMmI1In0.3vPVH23GEwIYwdt9OpJhAr17CLYBmMwII_SOkx7TaWw';
+
+                // token on 52.28.12.201
+                var token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiTmFtZSIsInBhc3N3b3JkIjoiJDJhJDA4JE1ldTZlNWFhTmcuQlhiYnFGbUZDUGVpODJTL3FyMjBIRFlEellIRnpqYjQxaTVQTVhyMHgyIiwiZW1haWwiOiJ0b3RvQHNxZWVkdGltZS5jaCIsIl9pZCI6IjU2MWQzNzQwN2QzZTI5ZTUyZmJlZGFlNiIsInNwYW0iOltdLCJkb25lIjpbXSwid2FpdGluZyI6W10sImdvaW5nIjpbXSwiZnJpZW5kX2dyb3VwcyI6W10sInJlcXVlc3RlZCI6W10sInJlcXVlc3RpbmciOltdLCJibG9ja2luZyI6W10sImJsb2NrZWQiOltdLCJmcmllbmRzIjpbXSwiZ2NtX3Rva2VuIjpbXX0.APWXLfqPnar0hOn7RLxhkya_okA6778rogFrkJ6j7Z0';
+
+                // create a blank object to hold our form information
+                // $scope will allow this to pass between controller and view
+                $scope.formData = {};
+
+                $scope.month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+                $http({
+                    method  : 'GET',
+                    url     : ip + '/api/offers',
+                    headers : { 'Content-Type': 'application/x-www-form-urlencoded',
+                    'x-access-token': token }  // set the headers so angular passing info as form data (not request payload)
+                }).success(function(data){
+                    if (!data.success) {
+                        alert(data.message);
+                    } else {
+                        data.offers.forEach(function(j){
+                            var t = new Date(j.start);
+                            j.start = t.getDate() + ' ' + $scope.month_names_short[t.getMonth()] + ', ' + t.getHours() + ':' + t.getMinutes();
+                            t = new Date(j.end);
+                            j.end = t.getDate() + ' ' + $scope.month_names_short[t.getMonth()] + ', ' + t.getHours() + ':' + t.getMinutes();
+                            j.id = j._id;
+                        });
+                        $scope.offers = data.offers;
+                    }
+                });
+
+                // process the form
+                $scope.processForm = function(isValid) {
+                    if(isValid){
+
+                        $http({
+                            method  : 'POST',
+                            url     : ip + '/api/providers/login',
+                            data    : $.param($scope.formData),  // pass in data as strings
+                            headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+                        })
+                        .success(function(data) {
+                            if(!data.success){
+                                !alert(data.message);
+                            } else {
+                                $http({
+                                    method  : 'POST',
+                                    url     : ip + '/api/providers/' + data.provider._id + '/offers',
+                                    data    : $.param($scope.formData),  // pass in data as strings
+                                    headers : { 'Content-Type': 'application/x-www-form-urlencoded',
+                                    'x-access-token': data.provider.token }  // set the headers so angular passing info as form data (not request payload)
+                                })
+                                .success(function(result) {
+                                    if(!result.success){
+                                        alert(result.message);
+                                    } else {
+                                        if(!alert('success!')){window.location.reload();}
+                                    }
+                                });
+                            }
+                        });
+                    }
+                };
+
+                //upload image
+                $scope.uploadImage = function(){
+                    $http({
+                        method  : 'POST',
+                        url     : ip + '/api/offers/' + $scope.formData.imageOfferId + '/image',
+                        data    : $.param($scope.formData),  // pass in data as strings
+                        headers : { 'Content-Type': undefined,
+                        'x-access-token': token }  // set the headers so angular passing info as form data (not request payload)
+                    })
+                    .success(function(result) {
+                        if(!alert(result.message)){window.location.reload();}
+                    });
+                }
+
+            }
+        </script>
+
+
+
+    </head>
+
+    <body ng-app="formApp" ng-controller="formController">
+        <div class="container">
+
+            <!-- HEADER -->
+            <div class="container">
+                <div class="jumbotron other-color">
+                    <h1><strong>Sqeedtime Offer Administration</strong></h1>
+                </div>
+            </div>
+
+
+            <div class="container">
+                <div class="jumbotron other-color">
+                    <form name="imageForm" ng-submit="uploadImage()">
+
+                        <!-- Image -->
+                        <div id="image-group" class="form-group" >
+                            <label>Image Offer Id</label>
+
+                            <input type="text" id="offerId" class="form-control" ng-model="formData.imageOfferId" required>
+                            <input type="file" id="image" class="form-control" ng-model="formData.image" required>
+
+
+                            <!-- SUBMIT BUTTON -->
+                            <button type="submit" class="btn btn-success btn-lg btn-block">
+                                <span class="glyphicon glyphicon-flash"></span> Upload!
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+
+
+            <div  class="container">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">Current offers</div>
+
+                            <div class="panel-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Lable</th>
+                                            <th>Nom etabl</th>
+                                            <th>Update</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="offer in offers">
+                                            <td>{{ offer.id }}</td>
+                                            <td>{{ offer.label }}</td>
+                                            <td>{{ offer.place }}</td>
+                                            <td>
+                                                <button type="submit" class="btn btn-warning btn-lg btn-block" style="height:40px;width:40px">
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">Submit An Offer</div>
+                            <div class="panel-body">
+                                <!-- FORM -->
+                                <form name="submitForm" ng-submit="processForm(submitForm.$valid)" novalidate>
+
+                                    <!-- Email -->
+                                    <div id="email-group" class="form-group" ng-class="{ 'has-error' : submitForm.email.$invalid && !submitForm.email.$pristine }">
+                                        <label>Provider Email</label>
+                                        <input type="text" name="email" class="form-control" ng-model="formData.email" required>
+                                        <p ng-show="submitForm.email.$invalid && !submitForm.email.$pristine" class="help-block">Provider's email is required.</p>
+                                    </div>
+
+                                    <!-- Password -->
+                                    <div id="password-group" class="form-group" ng-class="{ 'has-error' : submitForm.password.$invalid && !submitForm.password.$pristine }">
+                                        <label>Provider Password</label>
+                                        <input type="text" name="password" class="form-control" ng-model="formData.password" required>
+                                        <p ng-show="submitForm.password.$invalid && !submitForm.password.$pristine" class="help-block">Provider's password is required.</p>
+                                    </div>
+
+                                    <!-- Nom de l'établissement -->
+                                    <div id="place-group" class="form-group" ng-class="{ 'has-error' : submitForm.place.$invalid && !submitForm.place.$pristine }">
+                                        <label>Nom de l'établissement</label>
+                                        <input type="text" name="place" class="form-control" ng-model="formData.place" required>
+                                        <p ng-show="submitForm.place.$invalid && !submitForm.place.$pristine" class="help-block">Nom de l'établissement est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Adresse -->
+                                    <div id="adress-group" class="form-group" ng-class="{ 'has-error' : submitForm.adress.$invalid && !submitForm.adress.$pristine }">
+                                        <label>Adresse</label>
+                                        <input type="text" name="adress" class="form-control" ng-model="formData.adress" required>
+                                        <p ng-show="submitForm.adress.$invalid && !submitForm.adress.$pristine" class="help-block">Addresse est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Latitude -->
+                                    <div id="latitude-group" class="form-group" ng-class="{ 'has-error' : submitForm.latitude.$invalid && !submitForm.latitude.$pristine }">
+                                        <label>Latitude</label>
+                                        <input type="number" name="latitude" class="form-control" ng-model="formData.latitude" min="-90" max="90" required>
+                                        <p ng-show="submitForm.latitude.$error.min" class="help-block">Latitude should be bigger than -90.</p>
+                                        <p ng-show="submitForm.latitude.$error.max" class="help-block">Latitude should be smaller than 90.</p>
+                                    </div>
+
+                                    <!-- Longitude -->
+                                    <div id="longitude-group" class="form-group" ng-class="{ 'has-error' : submitForm.longitude.$invalid && !submitForm.longitude.$pristine }">
+                                        <label>Longitude</label>
+                                        <input type="number" name="longitude" class="form-control" ng-model="formData.longitude" min="-180" max="180" required>
+                                        <p ng-show="submitForm.longitude.$error.min" class="help-block">Longitude should be bigger than -180.</p>
+                                        <p ng-show="submitForm.longitude.$error.max" class="help-block">Longitude should be smaller than 180.</p>
+                                    </div>
+
+                                    <!-- Title -->
+                                    <div id="title-group" class="form-group" ng-class="{ 'has-error' : submitForm.title.$invalid && !submitForm.title.$pristine }">
+                                        <label>Titre</label>
+                                        <input type="text" name="title" class="form-control" ng-model="formData.title" required>
+                                        <p ng-show="submitForm.title.$invalid && !submitForm.title.$pristine" class="help-block">Title est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div id="description-group" class="form-group" ng-class="{ 'has-error' : submitForm.description.$invalid && !submitForm.description.$pristine }">
+                                        <label>Description</label>
+                                        <textarea name="description" rows="10" cols="70" class="form-control" ng-model="formData.description" required></textarea>
+                                        <p ng-show="submitForm.description.$invalid && !submitForm.description.$pristine" class="help-block">Description est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Label -->
+                                    <div id="label-group" class="form-group" ng-class="{ 'has-error' : submitForm.label.$invalid && !submitForm.label.$pristine }">
+                                        <label>Label</label>
+                                        <select name="label" class="form-control" ng-model="formData.label" required>
+                                            <option value="0">Weekly</option>
+                                            <option value="1">Daily</option>
+                                            <option value="2">48h Chrono</option>
+                                        </select>
+                                        <p ng-show="submitForm.label.$invalid && !submitForm.label.$pristine" class="help-block">Label is required.</p>
+                                    </div>
+
+                                    <!-- Icon -->
+                                    <div id="icon-group" class="form-group" ng-class="{ 'has-error' : submitForm.icon.$invalid && !submitForm.icon.$pristine }">
+                                        <label>Icône</label>
+                                        <select name="icon" class="form-control" ng-model="formData.icon" required>
+                                            <option value="0">Pouce</option>
+                                            <option value="1">Etoile</option>
+                                        </select>
+                                        <p ng-show="submitForm.icon.$invalid && !submitForm.icon.$pristine" class="help-block">Icône est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Start -->
+                                    <div id="start-group" class="form-group" ng-class="{ 'has-error' : submitForm.start.$invalid && !submitForm.start.$pristine }">
+                                        <label>Date de début</label>
+                                        <input type="datetime-local" name="start" ng-model="formData.start" placeholder="yyyy-MM-ddTHH:mm:ss" required />
+                                        <p ng-show="submitForm.start.$invalid && !submitForm.start.$pristine" class="help-block">Start time is required.</p>
+                                    </div>
+
+                                    <!-- End -->
+                                    <div id="end-group" class="form-group" ng-class="{ 'has-error' : submitForm.end.$invalid && !submitForm.end.$pristine }">
+                                        <label>Date de fin</label>
+                                        <input type="datetime-local" name="end" ng-model="formData.end" placeholder="yyyy-MM-ddTHH:mm:ss" required />
+                                        <p ng-show="submitForm.end.$invalid && !submitForm.end.$pristine" class="help-block">End time is required.</p>
+                                    </div>
+
+                                    <!-- Name -->
+                                    <div id="name-group" class="form-group" ng-class="{ 'has-error' : submitForm.name.$invalid && !submitForm.name.$pristine }">
+                                        <label>Nom du sqeed</label>
+                                        <input type="text" name="name" class="form-control" ng-model="formData.name" required>
+                                        <p ng-show="submitForm.name.$invalid && !submitForm.name.$pristine" class="help-block">Nom du sqeed est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Category -->
+                                    <div id="category-group" class="form-group" ng-class="{ 'has-error' : submitForm.category.$invalid && !submitForm.category.$pristine }">
+                                        <label>Category</label>
+                                        <select name="category" class="form-control" ng-model="formData.category" required>
+                                            <option value="0">Fun</option>
+                                            <option value="1">Drink</option>
+                                            <option value="2">Food</option>
+                                            <option value="3">Sport</option>
+                                            <option value="4">Work</option>
+                                        </select>
+                                        <p ng-show="submitForm.category.$invalid && !submitForm.category.$pristine" class="help-block">Category est obligatoire.</p>
+                                    </div>
+
+                                    <!-- SUBMIT BUTTON -->
+                                    <button type="submit" class="btn btn-success btn-lg btn-block" ng-disabled="submitForm.$invalid">
+                                        <span class="glyphicon glyphicon-flash"></span> Submit!
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

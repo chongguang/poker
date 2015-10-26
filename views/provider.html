@@ -1,0 +1,234 @@
+<!-- public/index.html -->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <base href="/">
+
+        <title>Sqeedtime provider administration</title>
+
+        <!-- LOAD BOOTSTRAP CSS -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+        <!-- LOAD JQUERY -->
+        <!-- when building an angular app, you generally DO NOT want to use jquery -->
+        <!-- we are breaking this rule here because jQuery's $.param will help us send data to our PHP script so that PHP can recognize it -->
+        <!-- this is jQuery's only use. avoid it in Angular apps and if anyone has tips on how to send data to a PHP script w/o jQuery, please state it in the comments -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+        <!-- LOAD ANGULAR -->
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+
+        <!-- PROCESS FORM WITH AJAX (NEW) -->
+        <script>
+
+            // define angular module/app
+            var formApp = angular.module('formApp', []);
+
+
+
+            // create angular controller and pass in $scope and $http
+            function formController($scope, $http) {
+
+                //var ip = 'http://localhost:8080';
+                var ip = 'http://52.28.12.201:8080';
+
+                // token on localhost
+                //var token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwYXNzd29yZCI6IiQyYSQwOCRCc3RnV3FJQVcyOFpRWTlaSVdNblB1bUdIS242SlZWQUo0dWU0bTRPM3U3cUFJY1V1MjBDSyIsImVtYWlsIjoicHBAZ21haWwuY29tIiwiX2lkIjoiNTYwODU2ZWQyNWQ5MDJkYjU1NzExMmI1In0.3vPVH23GEwIYwdt9OpJhAr17CLYBmMwII_SOkx7TaWw';
+
+                // token on 52.28.12.201
+                var token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiTmFtZSIsInBhc3N3b3JkIjoiJDJhJDA4JE1ldTZlNWFhTmcuQlhiYnFGbUZDUGVpODJTL3FyMjBIRFlEellIRnpqYjQxaTVQTVhyMHgyIiwiZW1haWwiOiJ0b3RvQHNxZWVkdGltZS5jaCIsIl9pZCI6IjU2MWQzNzQwN2QzZTI5ZTUyZmJlZGFlNiIsInNwYW0iOltdLCJkb25lIjpbXSwid2FpdGluZyI6W10sImdvaW5nIjpbXSwiZnJpZW5kX2dyb3VwcyI6W10sInJlcXVlc3RlZCI6W10sInJlcXVlc3RpbmciOltdLCJibG9ja2luZyI6W10sImJsb2NrZWQiOltdLCJmcmllbmRzIjpbXSwiZ2NtX3Rva2VuIjpbXX0.APWXLfqPnar0hOn7RLxhkya_okA6778rogFrkJ6j7Z0';
+
+                // create a blank object to hold our form information
+                // $scope will allow this to pass between controller and view
+                $scope.formData = {};
+
+                $scope.month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+                $http({
+                    method  : 'GET',
+                    url     : ip + '/api/providers?type=sqeedTimeDevHack',
+                    headers : { 'Content-Type': 'application/x-www-form-urlencoded',
+                    'x-access-token': token }  // set the headers so angular passing info as form data (not request payload)
+                }).success(function(data){
+                    if (!data.success) {
+                        alert(data.message);
+                    } else {
+                        data.providers.forEach(function(j){
+                            j.id = j._id;
+                        });
+                        $scope.providers = data.providers;
+                    }
+                });
+
+                // process the form
+                $scope.processForm = function(isValid) {
+                    if(isValid){
+
+                        $http({
+                            method  : 'POST',
+                            url     : ip + '/api/providers/signup',
+                            data    : $.param($scope.formData),  // pass in data as strings
+                            headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+                        })
+                        .success(function(data) {
+                            if(!data.success){
+                                alert(data.message);
+                            } else {
+                                if(!alert('success!')){window.location.reload();}
+                            }
+                        });
+                    }
+                };
+
+                //upload image
+                $scope.uploadImage = function(){
+                    $http({
+                        method  : 'POST',
+                        url     : ip + '/api/offers/' + $scope.formData.imageOfferId + '/image',
+                        data    : $.param($scope.formData),  // pass in data as strings
+                        headers : { 'Content-Type': undefined,
+                        'x-access-token': token }  // set the headers so angular passing info as form data (not request payload)
+                    })
+                    .success(function(result) {
+                        if(!alert(result.message)){window.location.reload();}
+                    });
+                }
+
+            }
+        </script>
+
+
+
+    </head>
+
+    <body ng-app="formApp" ng-controller="formController">
+        <div class="container">
+
+            <!-- HEADER -->
+            <div class="container">
+                <div class="jumbotron other-color">
+                    <h1><strong>Sqeedtime Provider Administration</strong></h1>
+                </div>
+            </div>
+
+
+            <div  class="container">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">Current offers</div>
+
+                            <div class="panel-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                            <th>E-mail</th>
+                                            <th>Update</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="provider in providers">
+                                            <td>{{ provider.id }}</td>
+                                            <td>{{ provider.name }}</td>
+                                            <td>{{ provider.email }}</td>
+                                            <td>
+                                                <button type="submit" class="btn btn-warning btn-lg btn-block" style="height:40px;width:40px">
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">Create a provider</div>
+                            <div class="panel-body">
+                                <!-- FORM -->
+                                <form name="submitForm" ng-submit="processForm(submitForm.$valid)" novalidate>
+
+                                    <!-- Email -->
+                                    <div id="email-group" class="form-group" ng-class="{ 'has-error' : submitForm.email.$invalid && !submitForm.email.$pristine }">
+                                        <label>Provider Email *</label>
+                                        <input type="text" name="email" class="form-control" ng-model="formData.email" required>
+                                        <p ng-show="submitForm.email.$invalid && !submitForm.email.$pristine" class="help-block">Provider's email is required.</p>
+                                    </div>
+
+                                    <!-- Password -->
+                                    <div id="password-group" class="form-group" ng-class="{ 'has-error' : submitForm.password.$invalid && !submitForm.password.$pristine }">
+                                        <label>Provider Password *</label>
+                                        <input type="text" name="password" class="form-control" ng-model="formData.password" required>
+                                        <p ng-show="submitForm.password.$invalid && !submitForm.password.$pristine" class="help-block">Provider's password is required.</p>
+                                    </div>
+
+                                    <!-- Name -->
+                                    <div id="name-group" class="form-group" ng-class="{ 'has-error' : submitForm.name.$invalid && !submitForm.name.$pristine }">
+                                        <label>Name *</label>
+                                        <input type="text" name="name" class="form-control" ng-model="formData.name" required>
+                                        <p ng-show="submitForm.name.$invalid && !submitForm.name.$pristine" class="help-block">Nom est obligatoire.</p>
+                                    </div>
+                                    
+                                    <!-- Phone -->
+                                    <div id="phone-group" class="form-group" ng-class="{ 'has-error' : submitForm.phone.$invalid && !submitForm.phone.$pristine }">
+                                        <label>Phone *</label>
+                                        <input type="text" name="phone" class="form-control" ng-model="formData.phone" required>
+                                        <p ng-show="submitForm.phone.$invalid && !submitForm.phone.$pristine" class="help-block">Phone est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Adresse -->
+                                    <div id="address-group" class="form-group" ng-class="{ 'has-error' : submitForm.address.$invalid && !submitForm.address.$pristine }">
+                                        <label>Adresse *</label>
+                                        <input type="text" name="address" class="form-control" ng-model="formData.address" required>
+                                        <p ng-show="submitForm.address.$invalid && !submitForm.address.$pristine" class="help-block">Addresse est obligatoire.</p>
+                                    </div>
+
+                                    <!-- Postal code -->
+                                    <div id="postal_code-group" class="form-group" ng-class="{ 'has-error' : submitForm.postal_code.$invalid && !submitForm.postal_code.$pristine }">
+                                        <label>Code postal</label>
+                                        <input type="text" name="postal_code" class="form-control" ng-model="formData.postal_code" required>
+                                        <!-- <p ng-show="submitForm.postal-code.$invalid && !submitForm.postal-code.$pristine" class="help-block">Nom du sqeed est obligatoire.</p> -->
+                                    </div>
+
+                                    <!-- Facebook Adresse -->
+                                    <div id="facebook_url-group" class="form-group" ng-class="{ 'has-error' : submitForm.facebook_url.$invalid && !submitForm.facebook_url.$pristine }">
+                                        <label>Facebook URL</label>
+                                        <input type="text" name="facebook_url" class="form-control" ng-model="formData.facebook_url" required>
+                                    </div>
+
+                                    <!-- Instagram Adresse -->
+                                    <div id="instagram_url-group" class="form-group" ng-class="{ 'has-error' : submitForm.instagram_url.$invalid && !submitForm.instagram_url.$pristine }">
+                                        <label>Instagram URL</label>
+                                        <input type="text" name="instagram_url" class="form-control" ng-model="formData.instagram_url" required>
+                                    </div>
+
+                                    <!-- Web site Adresse -->
+                                    <div id="web-url-group" class="form-group" ng-class="{ 'has-error' : submitForm.web-url.$invalid && !submitForm.web-url.$pristine }">
+                                        <label>Web site URL</label>
+                                        <input type="text" name="web-url" class="form-control" ng-model="formData.web_site_url" required>
+                                    </div>
+
+                                    <!-- local.ch Adresse -->
+                                    <div id="localch-url-group" class="form-group" ng-class="{ 'has-error' : submitForm.localch-url.$invalid && !submitForm.localch-url.$pristine }">
+                                        <label>Local.ch URL</label>
+                                        <input type="text" name="localch-url" class="form-control" ng-model="formData.local_ch_url" required>
+                                    </div>
+
+                                    <!-- SUBMIT BUTTON -->
+                                    <button type="submit" class="btn btn-success btn-lg btn-block" ng-disabled="submitForm.$invalid">
+                                        <span class="glyphicon glyphicon-flash"></span> Submit!
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
