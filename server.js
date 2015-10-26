@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var straightFlush = require("./rules/StraightFlush.js");
 var pair = require("./rules/Pair.js");
 var royalFlush = require("./rules/RoyalFlush.js");
+var twoPair = require("./rules/twoPair.js");
 
 
 // configure app to use bodyParser()
@@ -34,8 +35,10 @@ router.get('/', function(req, res) {
 //Here you put all your rules
 router.use(straightFlush.StraightFlushRule);
 
-router.use(pair.pairRule);
+
 router.use(royalFlush.RoyalFlushRule);
+router.use(twoPair.twoPairRule);
+router.use(pair.pairRule);
 
 // ----------------------------------------------------
 router.route('/hands')

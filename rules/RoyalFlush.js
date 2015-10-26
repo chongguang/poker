@@ -12,6 +12,9 @@ var royalFlushRule = function(req, res, next){
 	
 };
 
+
+//Very nice code !!
+//I will inspire myself with this one to create the 3 other rules.
 var royalFlushFunction = function(cards){
 
 console.log(cards);

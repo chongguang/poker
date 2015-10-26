@@ -20,5 +20,3 @@ var orderCards = function(cards){
 }
 
 exports.StraightFlushRule = straightFlushRule;
-
-//console.log(orderCards([{number:1, color:"heart"},{number:3, color:"heart"},{number:2, color:"heart"}]));
