@@ -37,6 +37,7 @@ router.get('/', function(req, res) {
 //Here you put all your rules from the most important to the less important
 
 router.use(royalFlush.RoyalFlushRule);
+router.use(straightFlush.StraightFlushRule);
 router.use(straight.straightRule);
 router.use(threeOfAKind.threeOfAKindRule);
 router.use(twoPair.twoPairRule);
